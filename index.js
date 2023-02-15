@@ -48,9 +48,19 @@ app.use(express.static(__dirname + '/public'));
 
 
 // Setup proxy
-const customRouter = async function () {   
-    const companyurl = await getGlobalState(COMPANY_CB.key, COMPANY_CB.value)
-    return companyurl ?? 'http://localhost:8000'; // protocol + host
+const customRouter = async function (req) {  
+    let companyurl = await getGlobalState(COMPANY_CB.key, COMPANY_CB.value)
+
+    if (!req || !companyurl) return companyurl ?? 'http://localhost:8000/test';
+
+    const dynamicParameter = companyurl.match(/(?<=\{\{).+?(?=\}\})/g)
+
+    // replace url variable
+    dynamicParameter.forEach((paramKey) => {
+        companyurl = companyurl.replace(`{{${paramKey}}}`, req.body[paramKey] ?? req.query[paramKey] ?? "")
+    })
+
+    return companyurl
 };
 
 const filter = function(pathname, req) {
@@ -63,7 +73,7 @@ const filter = function(pathname, req) {
         status = req.body.status.toLowerCase()
     } 
 
-    return pathname.match('^/webhooks/delivery-receipt') && allowedState.includes(status)
+    return pathname.match('^/dlr') && allowedState.includes(status)
 }
 
 const defaultTarget = await customRouter()
@@ -73,7 +83,7 @@ const options = {
     changeOrigin: true, // needed for virtual hosted sites
     router: customRouter,
     pathRewrite: {
-        '^/webhooks/delivery-receipt':'' //remove /service/api
+        '^/dlr':'' //remove /service/api
     },
     onProxyReq: (proxyReq, req, res) => {
         fixRequestBody(proxyReq, req);
@@ -81,7 +91,7 @@ const options = {
 };
 
 const proxy = createProxyMiddleware(filter, options);
-app.use('/webhooks/delivery-receipt', proxy);
+app.use('/dlr', proxy);
 
 
 app.get('/_/health', async (req, res) => {
@@ -133,13 +143,13 @@ app.post('/logout', function (req, res, next) {
     return res.redirect('/login')
 });
 
-app.post("/webhooks/delivery-receipt", (req, res) => {
-//    console.log("in post /webhooks/delivery-receipt", req.body)
+app.post("/dlr", (req, res) => {
+//    console.log("in post /dlr", req.body)
    res.status(204).send()
 })
 
-app.get("/webhooks/delivery-receipt", (req, res) => {
-    // console.log("in get /webhooks/delivery-receipt", req.query)
+app.get("/dlr", (req, res) => {
+    // console.log("in get /dlr", req.query)
     res.status(204).send()
 })
 

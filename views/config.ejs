@@ -15,8 +15,8 @@
 			<h1>Configuration:</h1>         
 			<form id="cb-form">
 				<section>            
-					<label for="callbackURL">SMS DLRs callback</label>
-					<input id="callbackURL" name="callbackURL" type="url" required autofocus>
+					<label for="callbackURL">SMS DLRs callback <br> <i>(Enclose dynamic parameter in double curly braces)</i></label>
+					<input id="callbackURL" name="callbackURL" type="url" placeholder="https://example.com/{{region}}/dlr" required autofocus>
 				</section>
 				<button type="submit">Submit</button>
 			</form>
