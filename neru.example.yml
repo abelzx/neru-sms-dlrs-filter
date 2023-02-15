@@ -1,0 +1,15 @@
+project:
+    name: intermediate-dlrs
+instance:
+    name: dev
+    runtime: nodejs16
+    region: 
+    application-id: 
+    entrypoint:
+        - node
+        - index.js
+debug:
+    name: debug
+    entrypoint:
+        - nodemon
+        - index.js

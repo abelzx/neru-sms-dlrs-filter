@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Vonage SMS DLRs Proxy</title>
+		<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+		<link href="/css/config.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<section id="logout">
+			<button  onclick="logout()">Log Out</button>
+		</section>
+		<section class="prompt">
+			<h1>Configuration:</h1>         
+			<form id="cb-form">
+				<section>            
+					<label for="callbackURL">SMS DLRs callback</label>
+					<input id="callbackURL" name="callbackURL" type="url" required autofocus>
+				</section>
+				<button type="submit">Submit</button>
+			</form>
+		</section>
+		<script>
+
+			const pathname = window.location.origin;
+			const form = document.getElementById('cb-form');
+			form.addEventListener('submit', updateCb);
+
+			function logout() {
+				fetch(`${pathname}/logout`, {
+					method: 'POST',
+					headers: {
+						'Content-type': 'application/json; charset=UTF-8',
+					}
+				})
+				.then(() => {
+					window.location.href="login";
+				})
+				.catch(error => console.error('Error:', error)); 
+			}
+
+			
+
+			function updateCb(e) {
+				e.preventDefault()
+				fetch(`${pathname}/config`, {
+					method: 'POST',
+					headers: {
+						'Content-type': 'application/json; charset=UTF-8',
+					},
+					body: JSON.stringify({
+						callbackURL: form['callbackURL'].value
+					})
+				})
+				.then((response) => {
+					if (response.ok) {
+						alert("callback url updated!")
+						form['callbackURL'].value = ""
+					}
+					else {
+						alert("Error!")
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error)
+					alert("Error!")
+				}); 
+
+			} 
+
+		</script>
+	</body>
+</html>

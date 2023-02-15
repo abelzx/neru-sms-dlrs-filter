@@ -1,0 +1,30 @@
+{
+  "name": "voicequiz",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node main.js",
+    "debug": "neru debug"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vonage/server-sdk": "^3.0.18",
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.1",
+    "connect-ensure-login": "^0.1.1",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.17.3",
+    "got": "^12.0.1",
+    "html-entities": "^2.3.2",
+    "http-proxy-middleware": "^2.0.6",
+    "neru-alpha": "^3.0.0",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0"
+  }
+}

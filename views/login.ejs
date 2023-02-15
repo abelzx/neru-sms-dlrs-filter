@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Vonage SMS DLRs Proxy</title>
+		<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+		<link href="/css/login.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<section class="prompt">
+			<h1>Vonage SMS DLRs Filter Proxy</h1>
+			<form action="/login" method="post">
+				<section>
+					<label for="username">API Key</label>
+					<input id="username" name="username" type="text" autocomplete="username" required autofocus>
+				</section>
+				<section>
+					<label for="current-password">API Secret</label>
+					<input id="current-password" name="password" type="password" autocomplete="current-password" required>
+				</section>
+				<button type="submit">Sign in</button>
+			</form>
+			<section class="messages">
+				<% messages.forEach(function(message) { %>
+				<p><%= message %></p>
+				<% }); %>
+			</section>
+		</section>
+	</body>
+</html>
