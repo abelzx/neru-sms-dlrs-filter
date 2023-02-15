@@ -3,6 +3,10 @@ import passport from "passport";
 import { Vonage } from '@vonage/server-sdk';
 function passport_auth() {
     passport.use(new LocalStrategy(function asyncverify(apiKey, apiSecret, cb) {
+        if (process.env.API_KEY !== apiKey) {
+            return cb(null, false, { message: 'Incorrect API Key.' })
+        }
+
         const vonage = new Vonage({
             apiKey: apiKey,
             apiSecret: apiSecret
@@ -13,7 +17,7 @@ function passport_auth() {
             return cb(null, { id: "0", username: apiKey })
 
         }).catch( err => {
-            return cb(null, false, { message: 'Incorrect API Key or Secret.' })
+            return cb(null, false, { message: 'Incorrect Secret.' })
 
         });
     }));

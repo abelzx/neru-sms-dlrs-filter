@@ -8,6 +8,9 @@ instance:
     entrypoint:
         - node
         - index.js
+    environment:
+        - name: API_KEY
+          value: ""
 debug:
     name: debug
     entrypoint:
