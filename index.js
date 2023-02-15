@@ -34,11 +34,6 @@ let sess = {
     }
 }
 
-if (app.get('env') === 'production') {
-    app.set('trust proxy', 1) // trust first proxy
-    sess.cookie.secure = true // serve secure cookies
-}
-
 app.use(session(sess))
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -60,8 +55,15 @@ const customRouter = async function () {
 
 const filter = function(pathname, req) {
     const allowedState = ['delivered', 'expired', 'failed',  'rejected', 'unknown']
+    let status = "defaultstate"
+    if (req.method === 'GET') {
+        status = req.query.status.toLowerCase()
+    }
+    else if (req.method === 'POST') {
+        status = req.body.status.toLowerCase()
+    } 
 
-    return pathname.match('^/webhooks/delivery-receipt') && (req.method === 'GET' || req.method === 'POST') && allowedState.includes(req.body.status.toLowerCase())
+    return pathname.match('^/webhooks/delivery-receipt') && allowedState.includes(status)
 }
 
 const defaultTarget = await customRouter()
@@ -137,7 +139,7 @@ app.post("/webhooks/delivery-receipt", (req, res) => {
 })
 
 app.get("/webhooks/delivery-receipt", (req, res) => {
-    // console.log("in get /webhooks/delivery-receipt", req.body)
+    // console.log("in get /webhooks/delivery-receipt", req.query)
     res.status(204).send()
 })
 
