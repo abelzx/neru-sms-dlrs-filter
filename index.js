@@ -132,12 +132,12 @@ app.post('/logout', function (req, res, next) {
 });
 
 app.post("/webhooks/delivery-receipt", (req, res) => {
-//    console.log("in post /webhooks/delivery-receipt", req.body.messageId)
+//    console.log("in post /webhooks/delivery-receipt", req.body)
    res.status(204).send()
 })
 
 app.get("/webhooks/delivery-receipt", (req, res) => {
-    // console.log("in get /webhooks/delivery-receipt", req.body.messageId)
+    // console.log("in get /webhooks/delivery-receipt", req.body)
     res.status(204).send()
 })
 
