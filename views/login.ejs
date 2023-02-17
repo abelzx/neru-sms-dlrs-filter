@@ -18,6 +18,7 @@
 				<section>
 					<label for="current-password">API Secret</label>
 					<input id="current-password" name="password" type="password" autocomplete="current-password" required>
+					<input type="hidden" name="_csrf" value="<%= csrfToken %>">
 				</section>
 				<button type="submit">Sign in</button>
 			</form>

@@ -17,6 +17,7 @@
 				<section>            
 					<label for="callbackURL">SMS DLRs callback <br> <i>(Enclose dynamic parameter in double curly braces)</i></label>
 					<input id="callbackURL" name="callbackURL" type="url" placeholder="https://example.com/{{region}}/dlr" required autofocus>
+					<input id="csrf" type="hidden" name="_csrf" value="<%= csrfToken %>">
 				</section>
 				<button type="submit">Submit</button>
 			</form>
@@ -30,6 +31,7 @@
 			function logout() {
 				fetch(`${pathname}/logout`, {
 					method: 'POST',
+					credentials: "include",
 					headers: {
 						'Content-type': 'application/json; charset=UTF-8',
 					}
@@ -48,14 +50,16 @@
 					method: 'POST',
 					headers: {
 						'Content-type': 'application/json; charset=UTF-8',
+						'X-CSRF-TOKEN': document.getElementById('csrf').value
 					},
 					body: JSON.stringify({
 						callbackURL: form['callbackURL'].value
 					})
 				})
-				.then((response) => {
+				.then(async (response) => {
 					if (response.ok) {
-						alert("callback url updated!")
+						let data = await response.json()
+						alert(`new callback url: ${data.url}`)
 						form['callbackURL'].value = ""
 					}
 					else {

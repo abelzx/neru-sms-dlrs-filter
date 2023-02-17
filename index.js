@@ -6,15 +6,18 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { passport_auth, passport } from "./auth/passportAuth.js";
 import flash from "express-flash";
-import session from "express-session";
 import bodyParser from 'body-parser';
 import hpm from 'http-proxy-middleware';
+import csrf from 'csurf'
+import cookieParser from 'cookie-parser'
+import cookieSession from 'cookie-session'
 
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const views_path = __dirname + '/views/';
 const ensureLoggedIn = cel.ensureLoggedIn
 const { createProxyMiddleware, fixRequestBody} = hpm;
+const csrfProtection = csrf({ cookie: true })
 
 const app = express();
 const port = process.env.NERU_APP_PORT || 3002;
@@ -24,28 +27,32 @@ const COMPANY_CB = {
    'value': 'url'
 }
 
-
-let sess = {
-    secret: 'honorusecret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { 
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-}
-
-app.use(session(sess))
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(cookieParser())
 
 app.set('view engine', 'ejs');
 app.use(cors());
 app.use(express.json());
 passport_auth()
-app.use(passport.authenticate('session'));
 app.use(express.static(__dirname + '/public'));
+app.use(cookieSession({
+    name: 'session',
+    keys: ["honorCb"],
+    secure: false,
+    resave: false,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
+app.use(function(req, res, next) {
+    try{
+        res.locals.csrfToken = req.csrfToken();  
+    }catch(e){
+        //nothing
+    }
+    next();
+});
 
+app.use(passport.authenticate('session'));
 
 // Setup proxy
 const customRouter = async function (req) {  
@@ -98,15 +105,15 @@ app.get('/_/health', async (req, res) => {
     res.sendStatus(200);
 });
 
-app.get('/', (req, res, next) => {
+app.get('/', csrfProtection, (req, res, next) => {
     res.redirect('/config')
 })
 
-app.get('/config', ensureLoggedIn("./login"), (req, res, next) => {
-    res.render(views_path + "config.ejs")
+app.get('/config', csrfProtection, ensureLoggedIn("./login"), (req, res, next) => {
+    res.render(views_path + "config.ejs", {csrfToken: req.csrfToken()})
 });
 
-app.post('/config', async (req, res) => {
+app.post('/config', csrfProtection,  async (req, res) => {
     try {
         const url = req.body.callbackURL;
         const dataObj = {}
@@ -115,7 +122,7 @@ app.post('/config', async (req, res) => {
         const companyurl = await getGlobalState(COMPANY_CB.key, COMPANY_CB.value)
 
         if (companyurl === url) {
-            res.sendStatus(200);
+            res.json({url});
         }
         else {
             res.sendStatus(501);
@@ -126,12 +133,12 @@ app.post('/config', async (req, res) => {
       }
 });
 
-app.get('/login', function (req, res, next) {
-    res.render(views_path + "login.ejs", { messages: req.flash("error") })
+app.get('/login', csrfProtection,  function (req, res, next) {
+    res.render(views_path + "login.ejs", { csrfToken: req.csrfToken(), messages: req.flash("error") })
 
 });
 
-app.post('/login',  passport.authenticate('local', {
+app.post('/login',  csrfProtection, passport.authenticate('local', {
     successRedirect: "./config",
     failureRedirect: './login',
     failureFlash: true
@@ -139,7 +146,7 @@ app.post('/login',  passport.authenticate('local', {
 
 
 app.post('/logout', function (req, res, next) {
-    req.session.destroy()
+    res.clearCookie('session', {path: '/'})
     return res.redirect('/login')
 });
 
