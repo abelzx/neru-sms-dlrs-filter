@@ -23,7 +23,7 @@ const app = express();
 const port = process.env.NERU_APP_PORT || 3002;
 
 const COMPANY_CB = {
-   'key': 'honor_cb',
+   'key': 'company_cb',
    'value': 'url'
 }
 
@@ -38,7 +38,7 @@ passport_auth()
 app.use(express.static(__dirname + '/public'));
 app.use(cookieSession({
     name: 'session',
-    keys: ["honorCb"],
+    keys: ["companyCb"],
     secure: false,
     resave: false,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -63,9 +63,11 @@ const customRouter = async function (req) {
     const dynamicParameter = companyurl.match(/(?<=\{\{).+?(?=\}\})/g)
 
     // replace url variable
-    dynamicParameter.forEach((paramKey) => {
-        companyurl = companyurl.replace(`{{${paramKey}}}`, req.body[paramKey] ?? req.query[paramKey] ?? "")
-    })
+    if (Array.isArray(dynamicParameter)) {
+        dynamicParameter.forEach((paramKey) => {
+            companyurl = companyurl.replace(`{{${paramKey}}}`, req.body[paramKey] ?? req.query[paramKey] ?? "")
+        })
+    }
 
     return companyurl
 };
