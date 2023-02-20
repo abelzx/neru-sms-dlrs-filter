@@ -22,8 +22,9 @@
 				<button type="submit">Submit</button>
 			</form>
 		</section>
+		<p class="current-cb">Current callback: <span id="current-cb"></span></p>
 		<script>
-
+			const currentCb = document.getElementById('current-cb');
 			const pathname = window.location.origin;
 			const form = document.getElementById('cb-form');
 			form.addEventListener('submit', updateCb);
@@ -61,6 +62,7 @@
 						let data = await response.json()
 						alert(`new callback url: ${data.url}`)
 						form['callbackURL'].value = ""
+						currentCb.innerHTML = data.url
 					}
 					else {
 						alert("Error!")
@@ -73,6 +75,26 @@
 
 			} 
 
+			function getCb() {
+				fetch(`${pathname}/custom-webhook`, {
+					method: 'GET'
+				})
+				.then(async (response) => {
+					if (response.ok) {
+						let data = await response.json()
+						currentCb.innerHTML = data.url
+					}
+					else {
+						alert("Get callback error!")
+					}
+				})
+				.catch(error => {
+					console.error('Get callback error:', error)
+					alert("Get callback error!")
+				}); 
+			}
+
+			getCb()
 		</script>
 	</body>
 </html>

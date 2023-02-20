@@ -50,3 +50,13 @@ label {
     border: 1px solid black;
     color: black;
 }
+
+p.current-cb {
+    text-align: center;
+    font-size: 18px;
+}
+
+p.current-cb span {
+    display: block;
+    margin-top: 4px;
+}

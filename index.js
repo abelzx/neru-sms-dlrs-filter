@@ -24,7 +24,8 @@ const port = process.env.NERU_APP_PORT || 3002;
 
 const COMPANY_CB = {
    'key': 'company_cb',
-   'value': 'url'
+   'value': 'url',
+   'default': 'https://apig.heds.huawei.com/api/{{region}}/nexmo/receipt'
 }
 
 app.use(flash());
@@ -58,7 +59,7 @@ app.use(passport.authenticate('session'));
 const customRouter = async function (req) {  
     let companyurl = await getGlobalState(COMPANY_CB.key, COMPANY_CB.value)
 
-    if (!req || !companyurl) return companyurl ?? 'http://localhost:8000/test';
+    if (!req || !companyurl) return companyurl ?? COMPANY_CB.default;
 
     const dynamicParameter = companyurl.match(/(?<=\{\{).+?(?=\}\})/g)
 
@@ -134,6 +135,12 @@ app.post('/config', csrfProtection,  async (req, res) => {
       } catch (error) {
         res.sendStatus(501)
       }
+});
+
+app.get('/custom-webhook', csrfProtection, ensureLoggedIn("./login"), async (req, res, next) => {
+    let currentWebhook = await getGlobalState(COMPANY_CB.key, COMPANY_CB.value) ?? COMPANY_CB.default
+    console.log("current ", currentWebhook)
+    res.json({url: currentWebhook})
 });
 
 app.get('/login', csrfProtection,  function (req, res, next) {
