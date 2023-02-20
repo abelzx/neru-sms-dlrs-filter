@@ -90,6 +90,7 @@ const defaultTarget = await customRouter()
 const options = {
     target: defaultTarget, // target host
     changeOrigin: true, // needed for virtual hosted sites
+    secure: false,
     router: customRouter,
     pathRewrite: {
         '^/dlr':'' //remove /service/api
